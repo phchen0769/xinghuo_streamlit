@@ -38,7 +38,7 @@ class Student(Base):
 
 
 # excel导入数据库表questions
-def to_sql_questions(xls_df, class_name, creator):
+def to_sql_questions(xls_df, creator, class_name):
     # 创建数据库连接引擎
     engine = create_engine("sqlite:///myDB.db", echo=True)
     # 建立session对象
@@ -46,7 +46,7 @@ def to_sql_questions(xls_df, class_name, creator):
     session = Session()
 
     # 获取标准答案
-    stander_answer = list(read_data("questions", "answer and score", "admin", "21软件2"))
+    stander_answer = list(read_data("questions", "*", "min", "21软件2"))
     i = 0
 
     # 数据写入数据库
@@ -59,24 +59,15 @@ def to_sql_questions(xls_df, class_name, creator):
         except:
             answer = ""
 
-        # 如果xls中读取的score为空，说明它是学生提交的答案
-        try:
-            # score列有数据，说明是标准答案
-            score = row[3]
+        # 分数处理
+        score = 0  # 默认值
 
-        except:
-            # score列没有数据，说明是学生答案，需要核对答案。
-            # res = read_data(
-            #     table_name="questions",
-            #     clum="score and answer",
-            #     creator="admin",
-            #     class_name="21软件2",
-            # )
-            try:
-                if stander_answer[i][0] == answer:
-                    score = stander_answer[i][1]
-            except:
-                score = "请先导入标准答案。"
+        if len(row) >= 4:
+            # 如果row长度等于4
+            score = row[3]
+        elif stander_answer[i][0] == answer:
+            score = stander_answer[i][1]
+        # 如果以上条件都不满足，score 保持默认值 0
 
         question_obj = Question(
             question=row[1],
@@ -150,20 +141,15 @@ def del_data(id):
 
 
 if __name__ == "__main__":
-    # 从excel导入数据到数据库
-    files_name = get_files_name("answers")
-    for name in files_name:
-        xls_df = read_xlsx(name)
-        class_name = name.split(".")[0].split("/")[1].split(" ")[0]
-        try:
-            creator = class_name = name.split(".")[0].split("/")[1][-3:]
-        except:
-            creator = ""
-        finally:
-            to_sql_questions(xls_df, class_name, creator)
+    # 获取文件名
+    # files_name = get_files_name("answers")
+
+    xls_df = read_xlsx("./answer/HW1-2_02曾俊杰.xlsx")
+
+    to_sql_questions(xls_df, creator="ttcc", class_name="21软件2")
 
     # 删除id=1的数据
-    # del_data(1)
+    del_data(1)
 
     # 删除所有数据
     # del_data(0)

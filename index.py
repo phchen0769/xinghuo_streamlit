@@ -100,27 +100,27 @@ def aggrid(question_df):
         gd.configure_column(
             field="question",
             header_name="题目",
-            width=300,
+            width=400,
         )
         gd.configure_column(
             field="answer",
             header_name="答案",
-            width=200,
+            width=150,
         )
         gd.configure_column(
             field="score",
             header_name="分数",
-            width=70,
+            width=50,
         )
         gd.configure_column(
             field="creator",
             header_name="创建者",
-            width=70,
+            width=50,
         )
         gd.configure_column(
             field="class_name",
             header_name="班级名称",
-            width=100,
+            width=70,
         )
         gd.configure_column(
             field="add_time",
@@ -201,11 +201,16 @@ def show_sidebar():
     )
     for uploaded_file in uploaded_files:
         if uploaded_file:
-            class_name = uploaded_file.name.split()
+            # 根据文件名，获取班别名
+            class_name = uploaded_file.name.split(".")[0].split("-")[0]
+            # 根据文件名，获取创建者
+            # creator = uploaded_file.name.split(".")[0].split("-")[1]
+            creator = uploaded_file.name.split(".")[0][-3:]
             # 读取上传的excel表
-            df = read_xlsx(uploaded_file)[1]
+            df = read_xlsx(uploaded_file)
             # 数据导入数据库
-            to_sql_questions(df)
+            # to_sql_questions(df, class_name, creator)
+            to_sql_questions(df, creator, class_name="21软件2")
             st.success("导入成功！")
 
     # 导出当前数据
