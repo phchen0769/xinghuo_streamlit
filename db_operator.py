@@ -2,135 +2,120 @@ import pandas as pd
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
+
+from file_operator import *
 
 
 # 建立ORM基础类
 Base = declarative_base()
 
 
-# 定义Student的ORM映射
-class Student(Base):
-    # 指定本类映射到stu_info表
-    __tablename__ = "stu_info"
+# 定义Question的ORM映射
+class Question(Base):
+    # 指定本类映射到questions表
+    __tablename__ = "questions"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    # 指定name映射到name字段; name字段为字符串类形
-    stu_name = Column(String(10))
-    stu_phone = Column(String(16))
-    par_name = Column(String(10))
-    par_phone = Column(String(16))
-    dormitory = Column(String(10))
-    address = Column(String(32))
-
-    # __repr__方法用于输出该类的对象被print()时输出的字符串，如果不想写可以不写
-    def __repr__(self):
-        return f"<Student(stu_name={self.stu_name},stu_phone={self.stu_phone},\
-            par_name={self.par_name},par_phone={self.par_phone},\
-                dormitory={self.dormitory},address={self.address}>"
-
-
-# 定义sys的ORM映射
-class SysParam(Base):
-    __tablename__ = "sys_info"
-    id = Column(Integer, primary_key=True)
-    creater = Column(String(32))
-    department = Column(Integer)
+    # 指定question映射到question字段; question字段为字符串类形
+    question = Column(String(300))
+    answer = Column(String(100))
+    score = Column(Integer)
+    creator = Column(String(16))
     class_name = Column(String(16))
-    week = Column(Integer)
-    reason = Column(String(64))
-    option = Column(Integer)
-
-    def __repr__(self):
-        return f"<SysParam(id={self.id},creater={self.creater},department={self.department},class_name={self.class_name},week={self.week},reason={self.reason},option={self.option}"
+    add_time = Column(String(16))
 
 
-# 定义sn_num的ORM映射
-class SNNum(Base):
-    __tablename__ = "sn_num"
-    id = Column(Integer, primary_key=True)
-    sn_num = Column(String(64))
+# 定义Student的ORM映射
+class Student(Base):
+    # 指定本类映射到questions表
+    __tablename__ = "students"
 
-    def __repr__(self):
-        return f"<SNNum(id={self.id},sn_num={self.sn_num}"
-
-
-# 读取excle
-def read_xlsx(file_name):
-    # 传入文件名，读取excle文件
-    xls = pd.ExcelFile(file_name)
-    # 把第一个工作表除第一行外，读作学生信息，第二个工作表除第一行外，读作系统信息
-    stu_info = xls.parse(0)
-    sys_info = xls.parse(1)
-
-    return sys_info, stu_info
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100))
+    class_name = Column(String(16))
+    score = Column(Integer)
 
 
-# excel导入数据库表sys_info
-def to_sql_sys_info(sys_info_df):
-    """
-    sys_info_df: df_object()=>none
-    """
+# excel导入数据库表questions
+def to_sql_questions(xls_df, class_name, creator):
     # 创建数据库连接引擎
     engine = create_engine("sqlite:///myDB.db", echo=True)
-    # 建立table
-    Base.metadata.create_all(engine)
     # 建立session对象
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    # 数据写入数据库
-    for row in sys_info_df.values:
-        options = (
-            "申请临时留宿",
-            "申请临时不留宿",
-            "申请长期留宿",
-            "申请取消长期留宿",
-        )
-        departments = ("信息技术系", "机电技术系", "财经商贸系", "公共基础部")
-
-        sys_obj = SysParam(
-            id=row[0],
-            creater=row[1],
-            department=departments.index(row[2]),
-            class_name=row[3],
-            week=row[4],
-            reason=row[5],
-            option=options.index(row[6]),
-        )
-        session.add(sys_obj)
-
-    # 保存
-    session.commit()
-    session.close()
-
-
-# excel导入数据库表stu_info
-def to_sql_stu_info(stu_info_df):
-    # 创建数据库连接引擎
-    engine = create_engine("sqlite:///myDB.db", echo=True)
-    # 建立table
-    # Base.metadata.create_all(engine)
-    # 建立session对象
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    # 获取标准答案
+    stander_answer = list(read_data("questions", "answer and score", "admin", "21软件2"))
+    i = 0
 
     # 数据写入数据库
-    for row in stu_info_df.values:
-        student_obj = Student(
-            id=row[0],
-            stu_name=row[1],
-            stu_phone=row[2],
-            par_name=row[3],
-            par_phone=row[4],
-            dormitory=row[5],
-            address=row[6],
+    for row in xls_df.values:
+        # 答案处理
+        try:
+            answer = row[2]
+            # 获取答案，去除前后空格并转换成小写
+            answer = answer.lower().strip()
+        except:
+            answer = ""
+
+        # 如果xls中读取的score为空，说明它是学生提交的答案
+        try:
+            # score列有数据，说明是标准答案
+            score = row[3]
+
+        except:
+            # score列没有数据，说明是学生答案，需要核对答案。
+            # res = read_data(
+            #     table_name="questions",
+            #     clum="score and answer",
+            #     creator="admin",
+            #     class_name="21软件2",
+            # )
+            try:
+                if stander_answer[i][0] == answer:
+                    score = stander_answer[i][1]
+            except:
+                score = "请先导入标准答案。"
+
+        question_obj = Question(
+            question=row[1],
+            answer=answer,
+            score=score,
+            add_time=datetime.now(),
+            class_name=class_name,
+            creator=creator,
         )
-        session.add(student_obj)
+        session.add(question_obj)
+
+        i += 1
 
     # 保存
     session.commit()
     session.close()
     return True
+
+
+# df导入数据库表students
+# def write_student(name, score, class_name="21软件2"):
+#     # 创建数据库连接引擎
+#     engine = create_engine("sqlite:///myDB.db", echo=True)
+#     # 建立session对象
+#     Session = sessionmaker(bind=engine)
+#     session = Session()
+
+#     # 数据写入数据库
+#     student_obj = Student(
+#         name=name,
+#         class_name=class_name,
+#         score=score,
+#     )
+#     session.add(student_obj)
+
+#     # 保存
+#     session.commit()
+#     session.close()
+#     return True
 
 
 # 读取数据库中的数据
@@ -142,61 +127,23 @@ def out_sql(table_name):
     return pd.read_sql(sql_command, engine)
 
 
-# 清空stu_info数据表中的数据
+# 读取
+def read_data(table_name, clum, creator, class_name):
+    engine = create_engine("sqlite:///myDB.db", echo=True)
+    sql_command = f"select {clum} from {table_name} where creator = '{creator}' and class_name = '{class_name}'"
+    return pd.read_sql(sql_command, engine)
+
+
+# 清空question数据表中的数据
 def del_data(id):
     # 创建数据库连接引擎
     engine = create_engine("sqlite:///myDB.db", echo=True)
     Session = sessionmaker(bind=engine)
     session = Session()
     if id:
-        session.query(Student).filter(Student.id == id).delete()
+        session.query(Question).filter(Question.id == id).delete()
     else:
-        session.query(Student).delete()
-    session.commit()
-    session.close()
-    return True
-
-
-# 保存系统配置到sys_info表
-def update_sys_info_table(sys_info_df):
-    # 创建数据库连接引擎
-    engine = create_engine("sqlite:///myDB.db", echo=True)
-
-    # 建立session对象
-    DBsession = sessionmaker(bind=engine)
-    session = DBsession()
-
-    # 新增数据
-    session.query(SysParam).filter_by(id=1).update(
-        {
-            SysParam.creater: sys_info_df.values[0][0],
-            SysParam.department: sys_info_df.values[0][1],
-            SysParam.class_name: sys_info_df.values[0][2],
-            SysParam.week: sys_info_df.values[0][3],
-            SysParam.reason: sys_info_df.values[0][4],
-            SysParam.option: sys_info_df.values[0][5],
-        }
-    )
-    session.commit()
-    session.close()
-    return True
-
-
-# 保存序列号到sn_num表
-def update_sn_num_table(sn_num):
-    # 创建数据库连接引擎
-    engine = create_engine("sqlite:///myDB.db", echo=True)
-
-    # 建立session对象
-    DBsession = sessionmaker(bind=engine)
-    session = DBsession()
-
-    # 新增数据
-    session.query(SNNum).filter_by(id=1).update(
-        {
-            SNNum.sn_num: sn_num,
-        }
-    )
+        session.query(Question).delete()
     session.commit()
     session.close()
     return True
@@ -204,7 +151,19 @@ def update_sn_num_table(sn_num):
 
 if __name__ == "__main__":
     # 从excel导入数据到数据库
-    to_sql_stu_info(read_xlsx("./students_info.xlsx")[1])
-    to_sql_sys_info(read_xlsx("./students_info.xlsx")[0])
-    print(out_sql("sys_info"))
-    print(out_sql("stu_info"))
+    files_name = get_files_name("answers")
+    for name in files_name:
+        xls_df = read_xlsx(name)
+        class_name = name.split(".")[0].split("/")[1].split(" ")[0]
+        try:
+            creator = class_name = name.split(".")[0].split("/")[1][-3:]
+        except:
+            creator = ""
+        finally:
+            to_sql_questions(xls_df, class_name, creator)
+
+    # 删除id=1的数据
+    # del_data(1)
+
+    # 删除所有数据
+    # del_data(0)

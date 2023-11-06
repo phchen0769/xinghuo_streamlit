@@ -7,7 +7,7 @@ from db_operator import out_sql
 
 # 初始化 站点显示参数
 st.set_page_config(
-    page_title="学生留宿管理系统",
+    page_title="学生成绩批阅系统",
     page_icon="🇨🇳",
     layout="wide",
     initial_sidebar_state="auto",
@@ -92,44 +92,47 @@ name, authentication_status, username = authenticator.login("登录", "main")
 
 # 跨页面使用校验状态
 if st.session_state["authentication_status"]:
-    with st.container():
-        #  重置密码、更新个人信息、退出
-        # cols1, cols2, cols3, cols4 = st.columns(4)
-        # cols1.markdown(f"欢迎{st.session_state['name']}")
+    with st.sidebar:
+        with st.container():
+            #  重置密码、更新个人信息、退出
+            # cols1, cols2, cols3, cols4 = st.columns(4)
+            # cols1.markdown(f"欢迎{st.session_state['name']}")
 
-        # # 重置密码按钮
-        # with cols2.container():
-        #     if st.button("重置密码"):
-        #         # 重置密码
-        #         try:
-        #             if authenticator.reset_password(username, "重置密码"):
-        #                 st.success("密码重置成功！")
-        #         except Exception as e:
-        #             st.error(e)
+            # # 重置密码按钮
+            # with cols2.container():
+            #     if st.button("重置密码"):
+            #         # 重置密码
+            #         try:
+            #             if authenticator.reset_password(username, "重置密码"):
+            #                 st.success("密码重置成功！")
+            #         except Exception as e:
+            #             st.error(e)
 
-        # with cols3.container():
-        #     if st.button("更新个人信息"):
-        #         # 更新用户详细信息
-        #         try:
-        #             if authenticator.update_user_details(username, "更新个人信息"):
-        #                 st.success("个人信息更新成功。")
-        #         except Exception as e:
-        #             st.error(e)
+            # with cols3.container():
+            #     if st.button("更新个人信息"):
+            #         # 更新用户详细信息
+            #         try:
+            #             if authenticator.update_user_details(username, "更新个人信息"):
+            #                 st.success("个人信息更新成功。")
+            #         except Exception as e:
+            #             st.error(e)
 
-        # # 退出按钮
-        # with cols4.container():
-        #     # 退出登录
-        #     authenticator.logout("退出", "main", key="unique_key")
+            # # 退出按钮
+            # with cols4.container():
+            #     # 退出登录
+            #     authenticator.logout("退出", "main", key="unique_key")
 
-        cols1, cols2 = st.columns(2)
-        cols1.markdown(f"欢迎{st.session_state['name']}")
+            cols1, cols2 = st.columns(2)
+            cols1.markdown(f"欢迎{st.session_state['name']}")
 
         # 退出按钮
         with cols2.container():
             # 退出登录
             authenticator.logout("退出", "main", key="unique_key")
 
-    index.main()  # 进入业务应用
+    # 在右侧显示主要内容
+    index.main()
+
 elif st.session_state["authentication_status"] is False:
     st.error("用户名或密码错误！")
 elif st.session_state["authentication_status"] is None:
