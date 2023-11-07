@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+import streamlit as st
 
 from file_operator import *
 
@@ -46,7 +47,9 @@ def to_sql_questions(xls_df, creator, class_name):
     session = Session()
 
     # 获取标准答案
-    stander_answer = list(read_data("questions", "*", "min", "21软件2"))
+    stander_answer = read_data("questions", "question,answer,score", "admin", "21软件2")
+    stander_answer = dict(stander_answer)
+
     i = 0
 
     # 数据写入数据库
@@ -60,14 +63,16 @@ def to_sql_questions(xls_df, creator, class_name):
             answer = ""
 
         # 分数处理
-        score = 0  # 默认值
+        score = "0"  # 默认值
 
         if len(row) >= 4:
             # 如果row长度等于4
             score = row[3]
-        elif stander_answer[i][0] == answer:
-            score = stander_answer[i][1]
+        elif stander_answer["answer"][i] == answer:
+            score = stander_answer["score"][i]
         # 如果以上条件都不满足，score 保持默认值 0
+        # st.write(type(score))
+        score = str(score)
 
         question_obj = Question(
             question=row[1],
@@ -78,6 +83,7 @@ def to_sql_questions(xls_df, creator, class_name):
             creator=creator,
         )
         session.add(question_obj)
+        # st.write(session)
 
         i += 1
 

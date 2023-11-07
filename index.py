@@ -81,7 +81,7 @@ def aggrid(question_df):
     if question_df.empty:
         # 创建一个空容器，用于占位
         container = st.container()
-        container.markdown("# 学生信息表为空！")
+        container.markdown("# 题目为空！")
     else:
         gd = GridOptionsBuilder.from_dataframe(question_df)
         # 打开ag-grid调试信息,选择后输出调试信息
@@ -105,7 +105,7 @@ def aggrid(question_df):
         gd.configure_column(
             field="answer",
             header_name="答案",
-            width=150,
+            width=120,
         )
         gd.configure_column(
             field="score",
@@ -115,7 +115,7 @@ def aggrid(question_df):
         gd.configure_column(
             field="creator",
             header_name="创建者",
-            width=50,
+            width=70,
         )
         gd.configure_column(
             field="class_name",
@@ -148,7 +148,7 @@ def aggrid(question_df):
             # 取消自动分页
             paginationAutoPageSize=False,
             # 30页一分页
-            paginationPageSize=30,
+            paginationPageSize=100,
         )
 
         gridoptions = gd.build()
@@ -169,7 +169,7 @@ def aggrid(question_df):
 
 
 # 显示侧边栏
-def show_sidebar():
+def show_sidebar(question_df):
     # 标题
     st.sidebar.markdown("# 阅卷系统")
 
@@ -177,21 +177,21 @@ def show_sidebar():
 
     with con_col1:
         # download_btn控件，下载导入模板
-        with open("students_info.xlsx", "rb") as file:
+        with open("./template/班别_admin.xlsx", "rb") as file:
             st.download_button(
                 label="下载标准答案模板",
                 data=file,
-                file_name="student_info.xlsx",
+                file_name="班别_admin.xlsx",
                 mime="ms-excel",
             )
 
     with con_col2:
         # download_btn控件，下载导入模板
-        with open("students_info.xlsx", "rb") as file:
+        with open("./template/班别_姓名.xlsx", "rb") as file:
             st.download_button(
                 label="下载答题卡模板",
                 data=file,
-                file_name="student_info.xlsx",
+                file_name="班别_姓名.xlsx",
                 mime="ms-excel",
             )
 
@@ -205,7 +205,8 @@ def show_sidebar():
             class_name = uploaded_file.name.split(".")[0].split("-")[0]
             # 根据文件名，获取创建者
             # creator = uploaded_file.name.split(".")[0].split("-")[1]
-            creator = uploaded_file.name.split(".")[0][-3:]
+            creator = uploaded_file.name.split(".")[0].split("_")[1]
+            # creator = uploaded_file.name.split(".")[0][-3:]
             # 读取上传的excel表
             df = read_xlsx(uploaded_file)
             # 数据导入数据库
@@ -214,25 +215,25 @@ def show_sidebar():
             st.success("导入成功！")
 
     # 导出当前数据
-    # @st.cache_data
-    # def convert_df(df):
-    #     return df.to_csv().encode("utf-8")
+    @st.cache_data
+    def convert_df(question_df):
+        return question_df.to_csv().encode("utf-8")
 
-    # csv = convert_df(question_df)
-    # st.sidebar.download_button(
-    #     label="导出数据为excel",
-    #     data=csv,
-    #     file_name="学生信息.csv",
-    #     mime="text/csv",
-    # )
-    # st.sidebar.markdown("***")
+    csv = convert_df(question_df)
+    st.sidebar.download_button(
+        label="导出数据为excel",
+        data=csv,
+        file_name="答题情况.csv",
+        mime="text/csv",
+    )
+    st.sidebar.markdown("***")
 
 
 # 显示content内容
 def show_content(question_df):
-    # form控件，学生信息不为空，显示控件
+    # form控件，题目不为空，显示控件
     if not question_df.empty:
-        st.markdown("#### 学生信息")
+        st.markdown("#### 题目")
 
         # form控件，表单
         with st.form("question_form"):
@@ -250,7 +251,7 @@ def show_content(question_df):
                     else:
                         st.error("保存失败！")
             with col2:
-                # form_submit_btn控件，表单提交--删除被选中学生信息
+                # form_submit_btn控件，表单提交--删除被选中题目信息
                 if st.form_submit_button("删除题目", help="删除被选中题目,如果所有题目都没有被选中，则删除所有题目。"):
                     if len(selection):
                         for i in selection:
@@ -263,7 +264,6 @@ def show_content(question_df):
                             st.error("删除失败！")
 
     else:
-        # st.markdown("### 学生留宿信息为空！请先导入数据。")
         st.error("题目为空！请先导入数据。")
 
 
@@ -276,16 +276,16 @@ def main():
             </style>
             """
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-    # 从数据库获取，学生留宿信息
+    # 从数据库获取，题目信息
     question_df = out_sql("questions")
 
     # 显示siderbar页
-    show_sidebar()
+    show_sidebar(question_df)
 
     # 显示content页
     show_content(question_df)
 
-    st.info("作者：陈沛华，时间：2023年6月20日")
+    st.info("作者：陈沛华，时间：2023年11月7日")
 
 
 if __name__ == "__main__":
