@@ -47,8 +47,9 @@ def to_sql_questions(xls_df, creator, class_name):
     session = Session()
 
     # 获取标准答案
-    stander_answer = read_data("questions", "question,answer,score", "admin", "21软件2")
+    stander_answer = read_data("questions", "answer,score", "admin", class_name)
     stander_answer = dict(stander_answer)
+    st.write(stander_answer)
 
     i = 0
 

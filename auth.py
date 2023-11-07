@@ -130,6 +130,8 @@ if st.session_state["authentication_status"]:
             # 退出登录
             authenticator.logout("退出", "main", key="unique_key")
 
+        st.sidebar.markdown("***")
+
     # 在右侧显示主要内容
     index.main()
 

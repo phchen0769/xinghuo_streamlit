@@ -195,6 +195,8 @@ def show_sidebar(question_df):
                 mime="ms-excel",
             )
 
+    st.sidebar.markdown("***")
+
     # file_uploader控件，上传excle表
     uploaded_files = st.sidebar.file_uploader(
         label="导入数据", type=["xlsx"], accept_multiple_files=True
@@ -202,7 +204,7 @@ def show_sidebar(question_df):
     for uploaded_file in uploaded_files:
         if uploaded_file:
             # 根据文件名，获取班别名
-            class_name = uploaded_file.name.split(".")[0].split("-")[0]
+            class_name = uploaded_file.name.split(".")[0].split("_")[0]
             # 根据文件名，获取创建者
             # creator = uploaded_file.name.split(".")[0].split("-")[1]
             creator = uploaded_file.name.split(".")[0].split("_")[1]
@@ -210,9 +212,12 @@ def show_sidebar(question_df):
             # 读取上传的excel表
             df = read_xlsx(uploaded_file)
             # 数据导入数据库
-            # to_sql_questions(df, class_name, creator)
-            to_sql_questions(df, creator, class_name="21软件2")
+            to_sql_questions(df, creator, class_name)
             st.success("导入成功！")
+
+    st.sidebar.markdown("***")
+
+    st.warning("1、先导入标准答案答题卡，再导入学生答题卡。2、答题卡的名字一定要按照模板文档修改。")
 
     # 导出当前数据
     @st.cache_data
@@ -226,7 +231,6 @@ def show_sidebar(question_df):
         file_name="答题情况.csv",
         mime="text/csv",
     )
-    st.sidebar.markdown("***")
 
 
 # 显示content内容
