@@ -7,5 +7,5 @@ services:
       - "8888:8888"
     working_dir: "/workspaces/yuejuan_streamlit"
     volumes:
-      - /Volumes/Extreme SSD/github/python3/yuejuan_streamlit:/workspaces/yuejuan_streamlit
+      - D:\\github\\yuejuan_streamlit:/workspaces/yuejuan_streamlit
     command: "streamlit run auth.py --server.port 8888"
