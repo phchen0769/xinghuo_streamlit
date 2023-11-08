@@ -196,16 +196,16 @@ def show_sidebar(question_df):
     st.sidebar.markdown("***")
 
     st.sidebar.warning("1、先导入标准答案答题卡，再导入学生答题卡。2、答题卡的名字一定要按照模板文档修改。")
-    
+
     col1, col2 = st.sidebar.columns(2)
-    
+
     show_image = False
-    
+
     with col1:
         if st.sidebar.button("示例"):
-            st.sidebar.image("images/1.png","命名样例")
-            st.sidebar.image("images/2.png","表内容样例-红色内容不能修改")
-    
+            st.sidebar.image("images/1.png", "命名样例")
+            st.sidebar.image("images/2.png", "表内容样例-红色内容不能修改")
+
     with col2:
         if st.sidebar.button("关闭"):
             show_image = not show_image
@@ -230,8 +230,6 @@ def show_sidebar(question_df):
 
     st.sidebar.markdown("***")
 
-    
-
     # 导出当前数据
     @st.cache_data
     def convert_df(question_df):
@@ -244,8 +242,6 @@ def show_sidebar(question_df):
         file_name="答题情况.csv",
         mime="text/csv",
     )
-
-    
 
 
 # 显示content内容
@@ -261,26 +257,26 @@ def show_content(question_df):
             selection = grid_res["selected_rows"]
 
             # 设置按钮布局
-            col1, col2 = st.columns(2)
+            # col1, col2 = st.columns(2)
 
-            with col1:
-                if st.form_submit_button("保存", help="保存修改的题目。"):
-                    if del_data(id=0) and to_sql_questions(grid_res.data):
-                        st.success("题目信息已保存！")
+            # with col1:
+            #     if st.form_submit_button("保存", help="保存修改的题目。"):
+            #         if del_data(id=0) and to_sql_questions(grid_res.data):
+            #             st.success("题目信息已保存！")
+            #         else:
+            #             st.error("保存失败！")
+            # with col2:
+            # form_submit_btn控件，表单提交--删除被选中题目信息
+            if st.form_submit_button("删除题目", help="删除被选中题目,如果所有题目都没有被选中，则删除所有题目。"):
+                if len(selection):
+                    for i in selection:
+                        del_data(i["id"])
+                    st.success("题目已删除！")
+                else:
+                    if del_data(id=0):
+                        st.success("题目已清空！")
                     else:
-                        st.error("保存失败！")
-            with col2:
-                # form_submit_btn控件，表单提交--删除被选中题目信息
-                if st.form_submit_button("删除题目", help="删除被选中题目,如果所有题目都没有被选中，则删除所有题目。"):
-                    if len(selection):
-                        for i in selection:
-                            del_data(i["id"])
-                        st.success("题目已删除！")
-                    else:
-                        if del_data(id=0):
-                            st.success("题目已清空！")
-                        else:
-                            st.error("删除失败！")
+                        st.error("删除失败！")
 
     else:
         st.error("题目为空！请先导入数据。")
@@ -307,13 +303,16 @@ def main():
     st.sidebar.info("作者：陈沛华，时间：2023年11月7日")
 
     # congtainer内容减少padding
-    st.markdown('''<style>
+    st.markdown(
+        """<style>
                         
                         .block-container.st-emotion-cache-z5fcl4.ea3mdgi4{
                             padding:10px;
                         }
                         
-                        </style>''', unsafe_allow_html=True)
+                        </style>""",
+        unsafe_allow_html=True,
+    )
 
 
 if __name__ == "__main__":
