@@ -49,7 +49,7 @@ def to_sql_questions(xls_df, creator, class_name):
     # 获取标准答案
     stander_answer = read_data("questions", "answer,score", "admin", class_name)
     stander_answer = dict(stander_answer)
-    st.write(stander_answer)
+    # st.write(stander_answer)
 
     i = 0
 
@@ -57,7 +57,7 @@ def to_sql_questions(xls_df, creator, class_name):
     for row in xls_df.values:
         # 答案处理
         try:
-            answer = row[2]
+            answer = str(row[2])
             # 获取答案，去除前后空格并转换成小写
             answer = answer.lower().strip()
         except:

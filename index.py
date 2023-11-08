@@ -142,13 +142,13 @@ def aggrid(question_df):
             # suppressRowClickSelection=False,
         )
         # 表格右侧工具栏
-        gd.configure_side_bar()
+        # gd.configure_side_bar()
         # 分页
         gd.configure_pagination(
             # 取消自动分页
             paginationAutoPageSize=False,
             # 30页一分页
-            paginationPageSize=100,
+            paginationPageSize=30,
         )
 
         gridoptions = gd.build()
@@ -171,8 +171,6 @@ def aggrid(question_df):
 # 显示侧边栏
 def show_sidebar(question_df):
     # 标题
-    st.sidebar.markdown("# 阅卷系统")
-
     con_col1, con_col2 = st.sidebar.columns(2)
 
     with con_col1:
@@ -197,6 +195,21 @@ def show_sidebar(question_df):
 
     st.sidebar.markdown("***")
 
+    st.sidebar.warning("1、先导入标准答案答题卡，再导入学生答题卡。2、答题卡的名字一定要按照模板文档修改。")
+    
+    col1, col2 = st.sidebar.columns(2)
+    
+    show_image = False
+    
+    with col1:
+        if st.sidebar.button("示例"):
+            st.sidebar.image("images/1.png","命名样例")
+            st.sidebar.image("images/2.png","表内容样例-红色内容不能修改")
+    
+    with col2:
+        if st.sidebar.button("关闭"):
+            show_image = not show_image
+
     # file_uploader控件，上传excle表
     uploaded_files = st.sidebar.file_uploader(
         label="导入数据", type=["xlsx"], accept_multiple_files=True
@@ -217,7 +230,7 @@ def show_sidebar(question_df):
 
     st.sidebar.markdown("***")
 
-    st.warning("1、先导入标准答案答题卡，再导入学生答题卡。2、答题卡的名字一定要按照模板文档修改。")
+    
 
     # 导出当前数据
     @st.cache_data
@@ -231,6 +244,8 @@ def show_sidebar(question_df):
         file_name="答题情况.csv",
         mime="text/csv",
     )
+
+    
 
 
 # 显示content内容
@@ -289,7 +304,16 @@ def main():
     # 显示content页
     show_content(question_df)
 
-    st.info("作者：陈沛华，时间：2023年11月7日")
+    st.sidebar.info("作者：陈沛华，时间：2023年11月7日")
+
+    # congtainer内容减少padding
+    st.markdown('''<style>
+                        
+                        .block-container.st-emotion-cache-z5fcl4.ea3mdgi4{
+                            padding:10px;
+                        }
+                        
+                        </style>''', unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
