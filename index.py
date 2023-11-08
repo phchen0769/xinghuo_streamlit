@@ -217,10 +217,11 @@ def show_sidebar(question_df):
     for uploaded_file in uploaded_files:
         if uploaded_file:
             # 根据文件名，获取班别名
-            class_name = uploaded_file.name.split(".")[0].split("_")[0]
+            class_name = uploaded_file.name.split(".")[0].split("_")[-2]
+            st.write(class_name)
             # 根据文件名，获取创建者
             # creator = uploaded_file.name.split(".")[0].split("-")[1]
-            creator = uploaded_file.name.split(".")[0].split("_")[1]
+            creator = uploaded_file.name.split(".")[0].split("_")[-1]
             # creator = uploaded_file.name.split(".")[0][-3:]
             # 读取上传的excel表
             df = read_xlsx(uploaded_file)
