@@ -49,9 +49,15 @@ def to_sql_questions(xls_df, creator, class_name):
     # 获取标准答案
     stander_answer = read_data("questions", "answer,score", "admin", class_name)
     stander_answer = dict(stander_answer)
-    # st.write(stander_answer)
 
     i = 0
+
+    # 实例化Student类
+    student_obj = Student(
+            name = creator,
+            class_name = class_name,
+            score = 0,
+        )
 
     # 数据写入数据库
     for row in xls_df.values:
@@ -71,10 +77,12 @@ def to_sql_questions(xls_df, creator, class_name):
             score = row[3]
         elif stander_answer["answer"][i] == answer:
             score = stander_answer["score"][i]
+            student_obj.score += score
         # 如果以上条件都不满足，score 保持默认值 0
-        # st.write(type(score))
+
         score = str(score)
 
+        # 实例化Question类
         question_obj = Question(
             question=row[1],
             answer=answer,
@@ -84,10 +92,13 @@ def to_sql_questions(xls_df, creator, class_name):
             creator=creator,
         )
         session.add(question_obj)
-        # st.write(session)
 
         i += 1
+    
+    student_obj.score = str(student_obj.score)
 
+    # 添加学生的信息
+    session.add(student_obj)
     # 保存
     session.commit()
     session.close()

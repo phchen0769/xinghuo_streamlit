@@ -169,7 +169,7 @@ def aggrid(question_df):
 
 
 # 显示侧边栏
-def show_sidebar(question_df):
+def show_sidebar(question_df, student_df):
     # 标题
     con_col1, con_col2 = st.sidebar.columns(2)
 
@@ -217,10 +217,10 @@ def show_sidebar(question_df):
     for uploaded_file in uploaded_files:
         if uploaded_file:
             # 根据文件名，获取班别名
-            class_name = uploaded_file.name.split(".")[0].split("_")[0]
+            class_name = uploaded_file.name.split(".")[0].split("_")[-2]
             # 根据文件名，获取创建者
             # creator = uploaded_file.name.split(".")[0].split("-")[1]
-            creator = uploaded_file.name.split(".")[0].split("_")[1]
+            creator = uploaded_file.name.split(".")[0].split("_")[-1]
             # creator = uploaded_file.name.split(".")[0][-3:]
             # 读取上传的excel表
             df = read_xlsx(uploaded_file)
@@ -235,13 +235,23 @@ def show_sidebar(question_df):
     def convert_df(question_df):
         return question_df.to_csv().encode("utf-8")
 
-    csv = convert_df(question_df)
+    csv1 = convert_df(question_df)
+    csv2 = convert_df(student_df)
+
     st.sidebar.download_button(
-        label="导出数据为excel",
-        data=csv,
-        file_name="答题情况.csv",
+        label="导出详情为excel",
+        data=csv1,
+        file_name="答题详情.csv",
         mime="text/csv",
     )
+
+    st.sidebar.download_button(
+        label="导出总成绩为excel",
+        data=csv2,
+        file_name="总成绩.csv",
+        mime="text/csv",
+    )
+
 
 
 # 显示content内容
@@ -293,9 +303,10 @@ def main():
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
     # 从数据库获取，题目信息
     question_df = out_sql("questions")
+    student_df = out_sql("students")
 
     # 显示siderbar页
-    show_sidebar(question_df)
+    show_sidebar(question_df,student_df)
 
     # 显示content页
     show_content(question_df)
