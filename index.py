@@ -218,6 +218,10 @@ def show_sidebar(question_df, student_df):
         if uploaded_file:
             # 根据文件名，获取班别名
             class_name = uploaded_file.name.split(".")[0].split("_")[-2]
+<<<<<<< HEAD
+=======
+            st.write(class_name)
+>>>>>>> 3f813c7238a8010ba5537b525fab0d611d6b12cf
             # 根据文件名，获取创建者
             # creator = uploaded_file.name.split(".")[0].split("-")[1]
             creator = uploaded_file.name.split(".")[0].split("_")[-1]

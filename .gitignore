@@ -1,0 +1,17 @@
+# 忽略所有 .log 文件
+*.log
+
+# 忽略名为 node_modules 的目录
+node_modules/
+
+# 忽略名为 dist 的目录
+dist/
+
+# 忽略名为 build 的目录
+build/
+
+# 忽略python临时文件
+__pycache__
+
+# 忽略数据库文件
+*.db
