@@ -54,10 +54,10 @@ def to_sql_questions(xls_df, creator, class_name):
 
     # 实例化Student类
     student_obj = Student(
-            name = creator,
-            class_name = class_name,
-            score = 0,
-        )
+        name=creator,
+        class_name=class_name,
+        score=0,
+    )
 
     # 数据写入数据库
     for row in xls_df.values:
@@ -94,7 +94,7 @@ def to_sql_questions(xls_df, creator, class_name):
         session.add(question_obj)
 
         i += 1
-    
+
     student_obj.score = str(student_obj.score)
 
     # 添加学生的信息
@@ -144,7 +144,7 @@ def read_data(table_name, clum, creator, class_name):
 
 
 # 清空question数据表中的数据
-def del_data(id):
+def del_question_data(id):
     # 创建数据库连接引擎
     engine = create_engine("sqlite:///myDB.db", echo=True)
     Session = sessionmaker(bind=engine)
@@ -153,6 +153,21 @@ def del_data(id):
         session.query(Question).filter(Question.id == id).delete()
     else:
         session.query(Question).delete()
+    session.commit()
+    session.close()
+    return True
+
+
+# 清空student数据表中的数据
+def del_student_data(id):
+    # 创建数据库连接引擎
+    engine = create_engine("sqlite:///myDB.db", echo=True)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    if id:
+        session.query(Student).filter(Student.id == id).delete()
+    else:
+        session.query(Student).delete()
     session.commit()
     session.close()
     return True

@@ -1,7 +1,9 @@
 import streamlit as st
 import streamlit_authenticator as stauth
+import hydralit as hy
 
-import index
+from frist_page import main as frist_main
+from second_page import main as second_main
 from db_operator import out_sql
 
 
@@ -13,6 +15,7 @@ st.set_page_config(
     initial_sidebar_state="auto",
     menu_items=None,
 )
+
 
 # 创建空的字典
 credentials = {"usernames": {}}
@@ -132,10 +135,56 @@ if st.session_state["authentication_status"]:
 
         st.sidebar.markdown("***")
 
+    # 隐藏made with streamlit
+    hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
     # 在右侧显示主要内容
-    index.main()
+    app = hy.HydraApp(title="阅卷系统")
+
+    @app.addapp()
+    def 题目详情():
+        frist_main()
+
+    @app.addapp()
+    def 成绩汇总():
+        second_main()
+
+    app.run()
 
 elif st.session_state["authentication_status"] is False:
     st.error("用户名或密码错误！")
 elif st.session_state["authentication_status"] is None:
     st.warning("请输入你的用户名和密码。")
+
+st.markdown(
+    """<style>
+                        
+                        #root > div:nth-child(1) > div.withScreencast > div > div > div > section.main.st-emotion-cache-uf99v8.ea3mdgi5 > div.block-container.st-emotion-cache-1y4p8pa.ea3mdgi4{
+                            padding:10px;
+                        }
+                        #root > div:nth-child(1) > div.withScreencast > div > div > div > section.main.st-emotion-cache-uf99v8.ea3mdgi5 > div.block-container.st-emotion-cache-1y4p8pa.ea3mdgi4 > div > div{
+                        padding:0;
+                        margin:0;
+                        width:80vw;
+                        }
+                        #root > div:nth-child(1) > div.withScreencast > div > div > div > section.main.st-emotion-cache-uf99v8.ea3mdgi5{
+                        padding:0;
+                        margin:0;
+                        flex-direction: row;
+                        flex-wrap: wrap;
+                        width:100vw;
+                        }
+
+                        #root > div:nth-child(1) > div.withScreencast > div > div > header > div.st-emotion-cache-zq5wmm.ezrtsby0 > div.stDeployButton > button{
+                        display:none;
+                        }
+
+                        </style>""",
+    unsafe_allow_html=True,
+)
