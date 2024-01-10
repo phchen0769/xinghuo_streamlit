@@ -47,7 +47,7 @@ def show_content(student_df):
     # 导出按钮，导出当前数据
     @st.cache_data
     def convert_df(studnet_df):
-        return student_df.to_csv().encode("utf-8")
+        return student_df.to_csv().encode("utf_8_sig")
 
     csv = convert_df(student_df)
 

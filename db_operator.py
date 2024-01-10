@@ -72,7 +72,8 @@ def to_sql_questions(xls_df, creator, class_name):
         # 分数处理
         score = "0"  # 默认值
 
-        if len(row) >= 4:
+        # if len(row) >= 4:
+        if student_obj.name == "admin":
             # 如果row长度等于4
             score = row[3]
         elif stander_answer["answer"][i] == answer:

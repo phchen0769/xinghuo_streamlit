@@ -49,7 +49,7 @@ def show_content(question_df):
 
     @st.cache_data
     def convert_df(question_df):
-        return question_df.to_csv().encode("utf-8")
+        return question_df.to_csv().encode("utf_8_sig")
 
     csv = convert_df(question_df)
 
