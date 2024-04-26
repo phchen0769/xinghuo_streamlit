@@ -1,53 +1,55 @@
-import requests
-import json
 import streamlit as st
+import SparkApi
 
-st.set_page_config(page_title="AI辅助教学", layout="centered", page_icon="🤖")
+st.set_page_config(page_title="星火大模型3.5", layout="centered", page_icon="🔥")
 
-API_KEY = ""
-SECRET_KEY = ""
+#以下密钥信息从控制台获取
+appid = ""   
+api_secret = "" 
+api_key ="" 
+
+#用于配置大模型版本
+domain = "generalv3"
+
+#云端环境的服务地址
+Spark_url = "ws://spark-api.xf-yun.com/v3.5/chat"  # v3.5环境的地址
+
+text =[]
+def getText(role,content):
+    jsoncon = {}
+    jsoncon["role"] = role
+    jsoncon["content"] = content
+    text.append(jsoncon)
+    return text
+
+def getlength(text):
+    length = 0
+    for content in text:
+        temp = content["content"]
+        leng = len(temp)
+        length += leng
+    return length
+
+def checklen(text):
+    while (getlength(text) > 8000):
+        del text[0]
+    return text
+
 
 if "chat_history" not in st.session_state:
     st.session_state["chat_history"] = []
 
-def main(prompt):
-    url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token=" + get_access_token()
-
-    payload = json.dumps({
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-    })
-    headers = {
-        'Content-Type': 'application/json'
-    }
-
-    response = requests.request("POST", url, headers=headers, data=payload)
-
-    return response.text
-
-
-def get_access_token():
-    """
-    使用 AK，SK 生成鉴权签名（Access Token）
-    :return: access_token，或是None(如果错误)
-    """
-    url = "https://aip.baidubce.com/oauth/2.0/token"
-    params = {"grant_type": "client_credentials", "client_id": API_KEY, "client_secret": SECRET_KEY}
-    return str(requests.post(url, params=params).json().get("access_token"))
-
-
 if __name__ == '__main__':
+    st.success("欢迎与星火大模型3.5进行交流")
     user_input = st.chat_input("请输入你计划咨询的问题，按回车键提交！")
     if user_input is not None:
         progress_bar = st.empty()
-        with st.spinner("内容已提交，文心一言4.0模型正在作答中！"):
-            feedback = json.loads(main(user_input))
-            if feedback.get("result"):
-                feedback = feedback["result"]
+        with st.spinner("内容已提交，星火大模型3.5模型正在作答中！"):
+            question = checklen(getText("user", user_input))
+            SparkApi.answer = ""
+            SparkApi.main(appid, api_key, api_secret, Spark_url, domain, question)
+            feedback = getText("assistant", SparkApi.answer)[1]["content"]
+            if feedback:
                 progress_bar.progress(100)
                 st.session_state['chat_history'].append((user_input, feedback))
                 for i in range(len(st.session_state["chat_history"])):
@@ -63,7 +65,5 @@ if __name__ == '__main__':
                     if st.sidebar.button("清除对话历史"):
                         st.session_state["chat_history"] = []
 
-            elif feedback.get("error_msg"):
-                st.error(feedback["error_msg"])
             else:
                 st.info("对不起，我回答不了这个问题，请你更换一个问题，谢谢！")

@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.234.0/containers/python-3
 {
-	"name": "wenxin_streamlit",
+	"name": "xinghuo_streamlit",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/python:0-3.11",
 	// Set *default* container specific settings.json values on container create.
@@ -13,8 +13,7 @@
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"ms-python.black-formatter",
-				"ClemensPeters.format-json",
-				"phind.phind"
+				"ClemensPeters.format-json"
 			]
 		}
 	},
