@@ -1,12 +1,12 @@
 import streamlit as st
 import SparkApi
 
-st.set_page_config(page_title="星火大模型3.5", layout="centered", page_icon="🔥")
+st.set_page_config(page_title="AI学习助手", layout="centered", page_icon="🔥")
 
 #以下密钥信息从控制台获取
 appid = ""   
 api_secret = "" 
-api_key ="" 
+api_key =""
 
 #用于配置大模型版本
 domain = "generalv3"
@@ -40,11 +40,11 @@ if "chat_history" not in st.session_state:
     st.session_state["chat_history"] = []
 
 if __name__ == '__main__':
-    st.success("欢迎与星火大模型3.5进行交流")
-    user_input = st.chat_input("请输入你计划咨询的问题，按回车键提交！")
+    st.success("欢迎使用东莞市信息技术学校AI学习助手。")
+    user_input = st.chat_input("请输入你想要咨询的问题，按回车键提交！")
     if user_input is not None:
         progress_bar = st.empty()
-        with st.spinner("内容已提交，星火大模型3.5模型正在作答中！"):
+        with st.spinner("内容已提交，AI学习助手正在作答中！"):
             question = checklen(getText("user", user_input))
             SparkApi.answer = ""
             SparkApi.main(appid, api_key, api_secret, Spark_url, domain, question)

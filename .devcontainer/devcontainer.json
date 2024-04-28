@@ -19,7 +19,7 @@
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [
-		8888
+		9999
 	],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// pip3 升级、设置清华源、安装requirements.txt中的依赖包
